@@ -3476,7 +3476,11 @@ class Trainer:
         if hasattr(self.optimizer, "train") and callable(self.optimizer.train):
             self.optimizer.train()
 
+        self.callback_handler.on_prepare_inputs_begin(self.args, self.state, self.control)
         inputs = self._prepare_inputs(inputs)
+        self.callback_handler.on_prepare_inputs_end(self.args, self.state, self.control)
+
+        self.callback_handler.on_forward_begin(self.args, self.state, self.control)
         if is_sagemaker_mp_enabled():
             loss_mb = smp_forward_backward(model, inputs, self.args.gradient_accumulation_steps)
             return loss_mb.reduce_mean().detach().to(self.args.device)
@@ -3510,6 +3514,7 @@ class Trainer:
 
         if self.args.n_gpu > 1:
             loss = loss.mean()  # mean() to average on multi-gpu parallel training
+        self.callback_handler.on_forward_end(self.args, self.state, self.control)
 
         if self.use_apex:
             with amp.scale_loss(loss, self.optimizer) as scaled_loss:

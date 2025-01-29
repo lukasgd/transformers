@@ -344,6 +344,30 @@ class TrainerCallback:
         """
         pass
 
+    def on_prepare_inputs_begin(self, args, state, control, **kwargs):
+        """
+        Event called at the beginning of a data loading.
+        """
+        pass
+
+    def on_prepare_inputs_end(self, args, state, control, **kwargs):
+        """
+        Event called at the end of a data loading.
+        """
+        pass
+
+    def on_forward_begin(self, args, state, control, **kwargs):
+        """
+        Event called at the beginning of forward pass.
+        """
+        pass
+
+    def on_forward_end(self, args, state, control, **kwargs):
+        """
+        Event called at the end of forward pass.
+        """
+        pass
+
     def on_pre_optimizer_step(self, args: TrainingArguments, state: TrainerState, control: TrainerControl, **kwargs):
         """
         Event called before the optimizer step but after gradient clipping. Useful for monitoring gradients.
@@ -480,6 +504,18 @@ class CallbackHandler(TrainerCallback):
         control.should_evaluate = False
         control.should_save = False
         return self.call_event("on_step_begin", args, state, control)
+
+    def on_prepare_inputs_begin(self, args, state, control, **kwargs):
+        return self.call_event("on_prepare_inputs_begin", args, state, control)
+
+    def on_prepare_inputs_end(self, args, state, control, **kwargs):
+        return self.call_event("on_prepare_inputs_end", args, state, control)
+
+    def on_forward_begin(self, args, state, control, **kwargs):
+        return self.call_event("on_forward_begin", args, state, control)
+
+    def on_forward_end(self, args, state, control, **kwargs):
+        return self.call_event("on_forward_end", args, state, control)
 
     def on_pre_optimizer_step(self, args: TrainingArguments, state: TrainerState, control: TrainerControl):
         return self.call_event("on_pre_optimizer_step", args, state, control)
